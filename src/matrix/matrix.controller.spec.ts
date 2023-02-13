@@ -1,18 +1,32 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { MatrixController } from './matrix.controller';
 
 describe('MatrixController', () => {
-  let controller: MatrixController;
+  let matrixController: MatrixController;
+  let matrixServiceMock;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [MatrixController],
-    }).compile();
+  beforeEach(() => {
+    matrixServiceMock = {
+      computeMatrix: jest.fn().mockResolvedValue({}),
+    };
 
-    controller = module.get<MatrixController>(MatrixController);
+    matrixController = new MatrixController(matrixServiceMock as any);
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+  describe('computeMatrix', () => {
+    it('should call computeMatrix on the MatrixService with the correct parameters', async () => {
+      const computeMatrixDto = { matrix: 'test', target: 1 };
+      await matrixController.computeMatrix(computeMatrixDto);
+
+      expect(matrixServiceMock.computeMatrix).toHaveBeenCalledWith(computeMatrixDto);
+    });
+
+    it('should return the result of the computeMatrix call on the MatrixService', async () => {
+      const expectedResult = {};
+      matrixServiceMock.computeMatrix.mockResolvedValue(expectedResult);
+
+      const result = await matrixController.computeMatrix({ matrix: 'test', target: 1 });
+
+      expect(result).toBe(expectedResult);
+    });
   });
 });
